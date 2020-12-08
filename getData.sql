@@ -33,12 +33,13 @@ FROM gross;
 -- task 5
 WITH response_per_employer_vacancy AS (
     SELECT DISTINCT
+        employer.employer_id AS employer_id,
         employer_name,
         COUNT(response.response_id) AS response_count
     FROM response
     RIGHT JOIN vacancy ON response.vacancy_id = vacancy.vacancy_id
     RIGHT JOIN employer ON vacancy.employer_id = employer.employer_id
-    GROUP BY vacancy.vacancy_id, employer_name
+    GROUP BY vacancy.vacancy_id, employer.employer_id, employer_name
 ), max_response_per_employer_vacancy AS (
     SELECT
         employer_name,
