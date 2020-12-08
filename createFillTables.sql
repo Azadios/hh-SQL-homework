@@ -112,7 +112,7 @@ VALUES  ('Senior заполнитель sql таблиц', 1, 0, 0, true),
         ('Devops', 8, 70000, 90000, true),
         ('Разработчик Java', 8, null, null, true),
         ('Разработчик C++', 9, null, null, true),
-        ('Разработчик С#', 9, null, null, true),
+        ('Разработчик C#', 9, null, null, true),
         ('Разработчик танцующих машин', 10, 600000, 800000, false),
         ('Elon Musk', 11, 10000000, null, false),
         ('Уборщик ракетного топлива', 11, 100000, 150000, false), -- +health insurance
