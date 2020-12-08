@@ -31,18 +31,25 @@ SELECT
 FROM gross;
 
 -- task 5
-WITH response_per_vacancy_ordered AS (
+WITH response_per_employer_vacancy AS (
     SELECT DISTINCT
         employer_name,
-        COUNT(*) OVER (PARTITION BY vacancy.vacancy_id) AS response_count
+        COUNT(response.response_id) AS response_count
     FROM response
-    INNER JOIN vacancy ON response.vacancy_id = vacancy.vacancy_id
-    INNER JOIN employer ON vacancy.employer_id = employer.employer_id
-    ORDER BY response_count DESC, employer_name ASC
+    RIGHT JOIN vacancy ON response.vacancy_id = vacancy.vacancy_id
+    RIGHT JOIN employer ON vacancy.employer_id = employer.employer_id
+    GROUP BY vacancy.vacancy_id, employer_name
+), max_response_per_employer_vacancy AS (
+    SELECT
+        employer_name,
+        MAX(response_count) AS max_response_count
+    FROM response_per_employer_vacancy
+    GROUP BY employer_name
 )
-SELECT DISTINCT
+SELECT
     employer_name AS "Компания"
-FROM response_per_vacancy_ordered
+FROM max_response_per_employer_vacancy
+ORDER BY max_response_count DESC, employer_name ASC
 LIMIT 5;
 
 -- task 6
@@ -57,10 +64,19 @@ SELECT
 FROM vacancy_per_employer;
 
 -- task 7
+WITH first_response AS (
+    SELECT
+        area_id,
+        vacancy.vacancy_id AS vacancy_id,
+        MIN(response.created_at - vacancy.created_at) AS time_since_vacancy_created
+    FROM vacancy
+    INNER JOIN response ON vacancy.vacancy_id = response.vacancy_id
+    INNER JOIN employer ON vacancy.employer_id = employer.employer_id
+    GROUP BY vacancy.vacancy_id, area_id
+)
 SELECT DISTINCT
     area_id AS "Город",
-    MIN(response.created_at - vacancy.created_at) OVER (PARTITION BY area_id) AS "Минимальное время отклика",
-    MAX(response.created_at - vacancy.created_at) OVER (PARTITION BY area_id) AS "Максимальное время отклика"
-FROM vacancy
-INNER JOIN response ON vacancy.vacancy_id = response.vacancy_id
-INNER JOIN employer ON vacancy.employer_id = employer.employer_id;
+    MIN(time_since_vacancy_created) AS "Минимальное время отклика",
+    MAX(time_since_vacancy_created) AS "Максимальное время отклика"
+FROM first_response
+GROUP BY area_id;
