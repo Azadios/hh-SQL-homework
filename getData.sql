@@ -32,7 +32,7 @@ FROM gross;
 
 -- task 5
 WITH response_per_employer_vacancy AS (
-    SELECT DISTINCT
+    SELECT
         employer.employer_id AS employer_id,
         employer_name,
         COUNT(response.response_id) AS response_count
@@ -42,10 +42,11 @@ WITH response_per_employer_vacancy AS (
     GROUP BY vacancy.vacancy_id, employer.employer_id, employer_name
 ), max_response_per_employer_vacancy AS (
     SELECT
+        employer_id,
         employer_name,
         MAX(response_count) AS max_response_count
     FROM response_per_employer_vacancy
-    GROUP BY employer_name
+    GROUP BY employer_id, employer_name
 )
 SELECT
     employer_name AS "Компания"
@@ -75,7 +76,7 @@ WITH first_response AS (
     INNER JOIN employer ON vacancy.employer_id = employer.employer_id
     GROUP BY vacancy.vacancy_id, area_id
 )
-SELECT DISTINCT
+SELECT
     area_id AS "Город",
     MIN(time_since_vacancy_created) AS "Минимальное время отклика",
     MAX(time_since_vacancy_created) AS "Максимальное время отклика"
